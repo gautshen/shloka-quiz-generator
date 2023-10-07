@@ -40,6 +40,13 @@ questions. Each question has three slides
 
   ```
 
+* The script uses `devtrans` to convert from ITRANS to Devanagari
+  encoding. To install `devtrans`:
+  ```
+  pip3 install devtrans
+
+  ```
+
 * The script uses the `Lohit Devanagari` script, `polyglossia` latex
   package, `xelatex`. On Ubuntu,
 
