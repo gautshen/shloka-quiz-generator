@@ -114,9 +114,19 @@ def generate_quiz(doc, lines):
     paada = paadas[paada_num]
     print("[PAADA  %02d] " %(paada_num), paada.strip())
 
+    word = None
     words = paada.split()
     num_words = len(words)
-    word_num = random.randint(0, num_words - 1)
+    i = random.randint(0, num_words - 1)
+    count = 0
+    while not word:
+        w = words[i]
+        if len(w) > 4 or count > num_words:
+            word_num = i
+            word = w
+        i = (i + 1) % num_words
+        count = count + 1
+
     print(word_num)
     word = words[word_num]
 
