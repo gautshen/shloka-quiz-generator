@@ -80,9 +80,12 @@ def add_final_page(doc, word, options_array, shloka_arr, correct_option, correct
     doc.append(Command('end', 'frame'))
 
 def add_pages(doc, word, options_array, shloka_arr, correct_option, correct_paada):
-    add_word_page(doc, word)    
-    add_word_options_page(doc, word, options_array, correct_option)
-    add_final_page(doc, word, options_array, shloka_arr, correct_option, correct_paada)
+    word_dev = devtrans.itrans2dev(word.strip(), True)
+    options_array_dev = [devtrans.itrans2dev(s.strip(), True) for s in options_array]
+    shloka_arr_dev = [devtrans.itrans2dev(s.strip(), True) for s in shloka_arr]
+    add_word_page(doc, word_dev)
+    add_word_options_page(doc, word_dev, options_array_dev, correct_option)
+    add_final_page(doc, word_dev, options_array_dev, shloka_arr_dev, correct_option, correct_paada)
 
 
 def generate_quiz(doc, lines):
