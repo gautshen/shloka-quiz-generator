@@ -138,9 +138,14 @@ if __name__ == '__main__':
     lines = f.readlines()
     f.close()
 
-    geometry_options = {"tmargin": "1cm", "lmargin": "1cm", "margin": "1cm"}
-    doc = Document(geometry_options=geometry_options, documentclass="beamer")
+    doc = Document(documentclass="beamer")
+    doc.preamble.append(Command('usetheme', 'Warsaw'))
     doc.packages.append(Package('hyperref'))
+    doc.packages.append(Package('polyglossia'))
+    doc.preamble.append(Command('setmainlanguage', 'sanskrit'))
+    doc.preamble.append(Command('setotherlanguage', 'english'))
+    doc.preamble.append(Command('setmainfont', 'Lohit Devanagari', 'Script=Devanagari'))
+    doc.preamble.append(Command('newfontfamily\devanagarifontsf', 'Lohit Devanagari', 'Script=Devanagari'))
     
     with doc.create(Section('Titlepage')):
         doc.preamble.append(Command('title', 'Shloka Quiz'))
@@ -149,4 +154,5 @@ if __name__ == '__main__':
 
     for i in range(MAXQUESTIONS):
         generate_quiz(doc, lines)
-    doc.generate_pdf('Shloka-Quiz', clean_tex=True, clean=True)
+    doc.generate_pdf('Shloka-Quiz', clean_tex=False, clean=True, compiler="xelatex")
+    doc.generate_tex()
