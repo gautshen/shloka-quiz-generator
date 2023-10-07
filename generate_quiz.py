@@ -53,25 +53,31 @@ def append_table_shloka(table, shloka_arr, correct_paada):
 
 def add_word_page(doc, word):
     doc.append(NewPage())
+    doc.append(Command('begin', 'frame'))
     table1 = Tabular('|c|c|c|c|')
     add_table_word(table1, word)
     doc.append(table1)
+    doc.append(Command('end', 'frame'))
 
 def add_word_options_page(doc, word, options_array, correct_option):
     doc.append(NewPage())
+    doc.append(Command('begin', 'frame'))
     table1 = Tabular('|c|c|c|c|')
     add_table_word(table1, word)
     append_table_options(table1, options_array, correct_option, "black", "black")
     doc.append(table1)
+    doc.append(Command('end', 'frame'))
 
 def add_final_page(doc, word, options_array, shloka_arr, correct_option, correct_paada):
     doc.append(NewPage())
+    doc.append(Command('begin', 'frame'))
     table1 = Tabular('|c|c|c|c|')
     add_table_word(table1, word)
     append_table_options(table1, options_array, correct_option, "blue", "black")    
     append_table_shloka(table1, shloka_arr, correct_paada)
 
     doc.append(table1)
+    doc.append(Command('end', 'frame'))
 
 def add_pages(doc, word, options_array, shloka_arr, correct_option, correct_paada):
     add_word_page(doc, word)    
