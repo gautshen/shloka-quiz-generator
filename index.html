@@ -50,6 +50,14 @@
     const N = lines.length - 1;
 
     function newQuiz() {
+        // Turn off answers and highlighting, regardless of previous state.
+        const answer = document.getElementById('answer');
+        const correct = document.querySelectorAll('.correct');
+        answer.classList.add('hidden');
+        correct.forEach(element => {
+            element.classList.remove('highlight');
+        });
+
         // Choose 4 random shlokas (correct one, and three others)
         const shlokasSet = new Set();
         const NUM_OPTIONS = 4;
@@ -97,9 +105,5 @@
     newQuiz();
 
     document.getElementById('showAnswer').addEventListener('click', toggleHighlight);
-
-    document.getElementById('newQuiz').addEventListener('click', function () {
-        toggleHighlight();
-        newQuiz();
-    });
+    document.getElementById('newQuiz').addEventListener('click', newQuiz);
 </script>
