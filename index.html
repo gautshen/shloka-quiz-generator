@@ -1,13 +1,27 @@
 <!DOCTYPE html>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.9/sanscript.min.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.9/sanscript.min.js"></script>
+    <title>Shloka Quiz</title>
+    <style>
+        .hidden {
+            visibility: hidden;
+        }
+
+        .highlight {
+            color: red;
+        }
+    </style>
+</head>
 
 <h1>Which śloka is this word from?</h1>
 <div id="question"></div>
 <ol id="options"></ol>
 <button id="showAnswer">Show answer</button>
-<pre id="answer" style="font-family: inherit;"></pre>
+<div id="answer" class="hidden"></div>
+<button id="newQuiz">New quiz</button>
 
 <script type="module">
     function random(n) {
@@ -15,6 +29,15 @@
     }
     function toDevanagari(text) {
         return Sanscript.t(text, 'itrans', 'devanagari');
+    }
+
+    function toggleHighlight() {
+        const answer = document.getElementById('answer');
+        const correct = document.querySelectorAll('.correct');
+        answer.classList.toggle('hidden');
+        correct.forEach(element => {
+            element.classList.toggle('highlight');
+        });
     }
 
     console.log('Fetching text...');
@@ -26,40 +49,57 @@
     // TODO: This assumes the last line is blank.
     const N = lines.length - 1;
 
-    // Choose 4 random shlokas (correct one, and three others)
-    const shlokasSet = new Set();
-    const NUM_OPTIONS = 4;
-    while (shlokasSet.size < NUM_OPTIONS) {
-        shlokasSet.add(lines[random(N)]);
-    }
-    const shlokas = Array.from(shlokasSet);
-    const correctOption = random(NUM_OPTIONS)
-    const shloka = shlokas[correctOption];
-    console.log(`Chosen shloka: ${shloka}`);
-
-    // Choose random pāda (other than the first one)
-    const paadas = shloka.split(',');
-    const paada = paadas[1 + random(paadas.length - 1)];
-    console.log(`Pāda: ${paada}`);
-
-    // Choose random word (not too short)
-    const words = paada.split(' ').filter(word => word.length > 4);
-    // TODO: This assumes there's at least one such word.
-    const word = words[random(words.length)];
-    console.log(`Word: ${word}`);
-
-    document.getElementById('question').textContent = toDevanagari(word);
-
-    for (const option of shlokas) {
-        const li = document.createElement('li');
-        li.textContent = toDevanagari(option.split(',')[0]) + '…';
-        document.getElementById('options').appendChild(li);
-    }
-
-    document.getElementById('showAnswer').addEventListener('click', function () {
-        const answer = document.getElementById('answer');
-        for (const paada of shloka.split(',')) {
-            answer.textContent += toDevanagari(paada.trim()) + '\n';
+    function newQuiz() {
+        // Choose 4 random shlokas (correct one, and three others)
+        const shlokasSet = new Set();
+        const NUM_OPTIONS = 4;
+        while (shlokasSet.size < NUM_OPTIONS) {
+            shlokasSet.add(lines[random(N)]);
         }
+        const shlokas = Array.from(shlokasSet);
+        const correctOption = random(NUM_OPTIONS)
+        const shloka = shlokas[correctOption];
+        console.log(`Chosen shloka: ${shloka}`);
+
+        // Choose random pāda (other than the first one)
+        const paadas = shloka.split(',');
+        const chosenPaada = paadas[1 + random(paadas.length - 1)];
+        console.log(`Pāda: ${chosenPaada}`);
+
+        // Choose random word (not too short)
+        const words = chosenPaada.split(' ').filter(word => word.length > 4);
+        // TODO: This assumes there's at least one such word.
+        const word = words[random(words.length)];
+        console.log(`Word: ${word}`);
+
+        document.getElementById('question').textContent = toDevanagari(word);
+
+        document.getElementById('options').replaceChildren(
+            ...shlokas.map(option => {
+                const li = document.createElement('li');
+                li.textContent = toDevanagari(option.split(',')[0]) + '…';
+                if (option == shloka) {
+                    li.classList.add('correct');
+                }
+                return li;
+            }));
+
+        document.getElementById('answer').replaceChildren(
+            ...shloka.split(',').map(paada => {
+                const span = document.createElement('span');
+                span.textContent = toDevanagari(paada.trim());
+                if (paada == chosenPaada) {
+                    span.classList.add('correct');
+                }
+                return [span, document.createElement('br')];
+            }).flat());
+    }
+    newQuiz();
+
+    document.getElementById('showAnswer').addEventListener('click', toggleHighlight);
+
+    document.getElementById('newQuiz').addEventListener('click', function () {
+        toggleHighlight();
+        newQuiz();
     });
 </script>
