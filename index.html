@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.9/sanscript.min.js"></script>
+
+<div id="status" style="font-size: xx-small;"></div>
+<h1>Which śloka is this word from?</h1>
+<div id="question"></div>
+<ol id="options"></ol>
+<button id="showAnswer">Show answer</button>
+<pre id="answer" style="font-family: inherit;"></pre>
+
+<script type="module">
+    function setStatus(text) {
+        document.getElementById('status').textContent = text;
+    }
+    function random(n) {
+        return Math.floor(n * Math.random());
+    }
+    function toDevanagari(text) {
+        return Sanscript.t(text, 'itrans', 'devanagari');
+    }
+
+    setStatus('Fetching text...');
+    const response = await fetch('./Texts/Moola-Ramayana-itrans.txt');
+    const text = await response.text();
+    const lines = text.split('\n');
+    setStatus(`Fetched. (Length ${text.length}, with ${lines.length} lines.)`);
+
+    // TODO: This assumes the last line is blank.
+    const N = lines.length - 1;
+
+    // Choose 4 random shlokas (correct one, and three others)
+    const shlokasSet = new Set();
+    const NUM_OPTIONS = 4;
+    while (shlokasSet.size < NUM_OPTIONS) {
+        shlokasSet.add(lines[random(N)]);
+    }
+    const shlokas = Array.from(shlokasSet);
+    const correctOption = random(NUM_OPTIONS)
+    const shloka = shlokas[correctOption];
+    console.log(`Chosen shloka: ${shloka}`);
+
+    // Choose random pāda (other than the first one)
+    const paadas = shloka.split(',');
+    const paada = paadas[1 + random(paadas.length - 1)];
+    console.log(`Pāda: ${paada}`);
+
+    // Choose random word (not too short)
+    const words = paada.split(' ').filter(word => word.length > 4);
+    // TODO: This assumes there's at least one such word.
+    const word = words[random(words.length)];
+    console.log(`Word: ${word}`);
+
+    document.getElementById('question').textContent = toDevanagari(word);
+
+    for (const option of shlokas) {
+        const li = document.createElement('li');
+        li.textContent = toDevanagari(option.split(',')[0]) + '…';
+        document.getElementById('options').appendChild(li);
+    }
+
+    document.getElementById('showAnswer').addEventListener('click', function () {
+        const answer = document.getElementById('answer');
+        for (const paada of shloka.split(',')) {
+            answer.textContent += toDevanagari(paada.trim()) + '\n';
+        }
+    });
+</script>
