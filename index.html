@@ -3,7 +3,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.9/sanscript.min.js"></script>
 
-<div id="status" style="font-size: xx-small;"></div>
 <h1>Which śloka is this word from?</h1>
 <div id="question"></div>
 <ol id="options"></ol>
@@ -11,9 +10,6 @@
 <pre id="answer" style="font-family: inherit;"></pre>
 
 <script type="module">
-    function setStatus(text) {
-        document.getElementById('status').textContent = text;
-    }
     function random(n) {
         return Math.floor(n * Math.random());
     }
@@ -21,11 +17,11 @@
         return Sanscript.t(text, 'itrans', 'devanagari');
     }
 
-    setStatus('Fetching text...');
+    console.log('Fetching text...');
     const response = await fetch('./Texts/Moola-Ramayana-itrans.txt');
     const text = await response.text();
     const lines = text.split('\n');
-    setStatus(`Fetched. (Length ${text.length}, with ${lines.length} lines.)`);
+    console.log(`Fetched. (Length ${text.length}, with ${lines.length} lines.)`);
 
     // TODO: This assumes the last line is blank.
     const N = lines.length - 1;
