@@ -77,10 +77,10 @@
         // Choose random word (not too short)
         const words = chosenPaada.split(' ').filter(word => word.length > 4);
         // TODO: This assumes there's at least one such word.
-        const word = words[random(words.length)];
-        console.log(`Word: ${word}`);
+        const chosenWord = words[random(words.length)];
+        console.log(`Word: ${chosenWord}`);
 
-        document.getElementById('question').textContent = toDevanagari(word);
+        document.getElementById('question').textContent = toDevanagari(chosenWord);
 
         document.getElementById('options').replaceChildren(
             ...shlokas.map(option => {
@@ -94,12 +94,20 @@
 
         document.getElementById('answer').replaceChildren(
             ...shloka.split(',').map(paada => {
-                const span = document.createElement('span');
-                span.textContent = toDevanagari(paada.trim());
-                if (paada == chosenPaada) {
-                    span.classList.add('correct');
+                const children = [];
+                for (let word of paada.trim().split(' ')) {
+                    const span = document.createElement('span');
+                    span.textContent = toDevanagari(word);
+                    if (paada == chosenPaada && word == chosenWord) {
+                        span.classList.add('correct');
+                    }
+                    children.push(span);
+                    const space = document.createElement('span');
+                    space.textContent = ' ';
+                    children.push(space);
                 }
-                return [span, document.createElement('br')];
+                children.push(document.createElement('br'));
+                return children;
             }).flat());
     }
     newQuiz();
