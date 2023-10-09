@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.9/sanscript.min.js"></script>
+    <title>Shloka Quiz</title>
+    <style>
+        .hidden {
+            visibility: hidden;
+        }
+
+        .highlight {
+            color: red;
+        }
+    </style>
+</head>
+
+<h1>Which śloka is this word from?</h1>
+<div id="question"></div>
+<ol id="options"></ol>
+<button id="showAnswer">Show answer</button>
+<div id="answer" class="hidden"></div>
+<button id="newQuiz">New quiz</button>
+
+<script type="module">
+    function random(n) {
+        return Math.floor(n * Math.random());
+    }
+    function toDevanagari(text) {
+        return Sanscript.t(text, 'itrans', 'devanagari');
+    }
+
+    function toggleHighlight() {
+        const answer = document.getElementById('answer');
+        const correct = document.querySelectorAll('.correct');
+        answer.classList.toggle('hidden');
+        correct.forEach(element => {
+            element.classList.toggle('highlight');
+        });
+    }
+
+    console.log('Fetching text...');
+    const response = await fetch('./Texts/Moola-Ramayana-itrans.txt');
+    const text = await response.text();
+    const lines = text.split('\n');
+    console.log(`Fetched. (Length ${text.length}, with ${lines.length} lines.)`);
+
+    // TODO: This assumes the last line is blank.
+    const N = lines.length - 1;
+
+    function newQuiz() {
+        // Turn off answers and highlighting, regardless of previous state.
+        const answer = document.getElementById('answer');
+        const correct = document.querySelectorAll('.correct');
+        answer.classList.add('hidden');
+        correct.forEach(element => {
+            element.classList.remove('highlight');
+        });
+
+        // Choose 4 random shlokas (correct one, and three others)
+        const shlokasSet = new Set();
+        const NUM_OPTIONS = 4;
+        while (shlokasSet.size < NUM_OPTIONS) {
+            shlokasSet.add(lines[random(N)]);
+        }
+        const shlokas = Array.from(shlokasSet);
+        const correctOption = random(NUM_OPTIONS)
+        const shloka = shlokas[correctOption];
+        console.log(`Chosen shloka: ${shloka}`);
+
+        // Choose random pāda (other than the first one)
+        const paadas = shloka.split(',');
+        const chosenPaada = paadas[1 + random(paadas.length - 1)];
+        console.log(`Pāda: ${chosenPaada}`);
+
+        // Choose random word (not too short)
+        const words = chosenPaada.split(' ').filter(word => word.length > 4);
+        // TODO: This assumes there's at least one such word.
+        const chosenWord = words[random(words.length)];
+        console.log(`Word: ${chosenWord}`);
+
+        document.getElementById('question').textContent = toDevanagari(chosenWord);
+
+        document.getElementById('options').replaceChildren(
+            ...shlokas.map(option => {
+                const li = document.createElement('li');
+                li.textContent = toDevanagari(option.split(',')[0]) + '…';
+                if (option == shloka) {
+                    li.classList.add('correct');
+                }
+                return li;
+            }));
+
+        document.getElementById('answer').replaceChildren(
+            ...shloka.split(',').map(paada => {
+                const children = [];
+                for (let word of paada.trim().split(' ')) {
+                    const span = document.createElement('span');
+                    span.textContent = toDevanagari(word);
+                    if (paada == chosenPaada && word == chosenWord) {
+                        span.classList.add('correct');
+                    }
+                    children.push(span);
+                    const space = document.createElement('span');
+                    space.textContent = ' ';
+                    children.push(space);
+                }
+                children.push(document.createElement('br'));
+                return children;
+            }).flat());
+    }
+    newQuiz();
+
+    document.getElementById('showAnswer').addEventListener('click', toggleHighlight);
+    document.getElementById('newQuiz').addEventListener('click', newQuiz);
+</script>
